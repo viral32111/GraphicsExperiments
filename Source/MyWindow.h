@@ -1,10 +1,8 @@
+// Only include once when compiling
 #pragma once
 
 // Standard I/O
 #include <iostream>
-
-// Standard string manipulation
-#include <string>
 
 // Windows API
 #include <Windows.h>

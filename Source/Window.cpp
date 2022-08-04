@@ -41,7 +41,7 @@ void MyWindow::createMainWindow( HINSTANCE applicationInstance, int showWindowFl
 		NULL, // No parent window as this is the top-level window
 		NULL, // No menu for this window
 		applicationInstance, // Handle to the instance of this application
-		NULL // No additional data
+		this // Extra data is a reference to this class so that message handlers can access it, used in the WM_CREATE message
 	);
 
 	// Do not continue if there was an issue creating the window
