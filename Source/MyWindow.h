@@ -10,6 +10,9 @@
 // Direct2D
 #include <d2d1.h>
 
+// DirectWrite
+#include <dwrite.h>
+
 // Custom class to encapsulate everything
 class MyWindow {
 
@@ -27,9 +30,12 @@ class MyWindow {
 
 		// Direct2D
 		ID2D1Factory *d2dFactory = NULL;
+		IDWriteFactory *writeFactory = NULL;
 		ID2D1HwndRenderTarget *renderTarget = NULL;
 		ID2D1SolidColorBrush *solidBrushOutline = NULL;
+		ID2D1SolidColorBrush *solidBrushText = NULL;
 		ID2D1LinearGradientBrush *gradientBrushFill = NULL;
+		IDWriteTextFormat *writeTextFormat = NULL;
 
 		// Message receiver
 		static LRESULT CALLBACK windowProcedure( HWND, UINT, WPARAM, LPARAM );

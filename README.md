@@ -1,6 +1,6 @@
 # Graphics Experiments
 
-These are my experiments around creating graphics with [GDI](https://docs.microsoft.com/en-us/windows/win32/gdi/windows-gdi) and [Direct2D](https://docs.microsoft.com/en-us/windows/win32/direct2d/direct2d-portal) on [Win32 applications](https://docs.microsoft.com/en-us/windows/win32/desktop-programming).
+These are my experiments around creating graphics with [GDI](https://docs.microsoft.com/en-us/windows/win32/gdi/windows-gdi), [Direct2D](https://docs.microsoft.com/en-us/windows/win32/direct2d/direct2d-portal), and [DirectWrite](https://docs.microsoft.com/en-us/windows/win32/directwrite/direct-write-portal) on [Win32 applications](https://docs.microsoft.com/en-us/windows/win32/desktop-programming).
 
 This is an C++20 / C17 project, that uses the Windows subsystem, developed in Visual Studio 2022.
 

@@ -105,6 +105,23 @@ LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode,
 
 		}
 
+		// When the window size or position is about to change
+		// https://docs.microsoft.com/en-gb/windows/win32/winmsg/wm-getminmaxinfo
+		case WM_GETMINMAXINFO: {
+
+			// Get the min-max-info structure from the parameter
+			LPMINMAXINFO minMaxData = ( LPMINMAXINFO ) lParam;
+
+			// Set the minimum width and height
+			minMaxData->ptMinTrackSize.x = 400;
+			minMaxData->ptMinTrackSize.y = 350;
+
+			return 0; // We processed this
+
+			break;
+			
+		}
+
 	}
 
 	// Run default action for the message if we do not have a custom handler for it
@@ -158,13 +175,23 @@ void MyWindow::onWindowPaint( HWND windowHandle ) {
 	this->renderTarget->DrawRectangle( rectangleArea, this->solidBrushOutline );
 
 	// Draw a circle outline
-	renderTarget->DrawEllipse(
+	this->renderTarget->DrawEllipse(
 		D2D1::Ellipse(
 			D2D1::Point2F( renderTargetSize.width / 2.0f, renderTargetSize.height / 2.0f ), // Position in the middle
 			75.0f, 75.0f // The circle radius (X, Y)
 		),
 		this->solidBrushOutline, // Use the outline brush
 		3.0f // The width of the outline (stroke)
+	);
+
+	// Draw some text
+	// https://docs.microsoft.com/en-us/windows/win32/Direct2D/how-to--draw-text
+	this->renderTarget->DrawTextW(
+		L"Hello World!", // The text to draw
+		12, // The length of the text
+		this->writeTextFormat, // The text formatter resource
+		rectangleArea, // Position of the text
+		this->solidBrushText // Use the text brush
 	);
 
 	// End the drawing code

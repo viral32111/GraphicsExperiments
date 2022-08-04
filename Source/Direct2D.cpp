@@ -1,16 +1,30 @@
 // My custom window class
 #include "MyWindow.h"
 
-// Creates the factory for creating other resources
+// Creates the factories for creating other resources
 void MyWindow::setupDirect2D() {
 
-	// Create a factory, which is used to create Direct2D resources, there should only be one for the lifetime of the application
+	// Create a Direct2D factory, which is used to create resources, there should only be one for the lifetime of the application
 	// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-2-create-an-id2d1factory
 	HRESULT factoryResult = D2D1CreateFactory( D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->d2dFactory );
 
-	// Do not continue if there was an issue creating the factory
+	// Do not continue if there was an issue creating the Direct2D factory
 	if ( FAILED( factoryResult ) || this->d2dFactory == NULL ) {
 		std::cerr << "Failed to create the Direct2D factory: " << factoryResult << std::endl;
+		ExitProcess( 1 );
+		return;
+	}
+
+	// Create a DirectWrite factory, which is used for text
+	HRESULT writeFactoryResult = DWriteCreateFactory(
+		DWRITE_FACTORY_TYPE_SHARED,
+		__uuidof( this->writeFactory ),
+		( IUnknown ** ) &this->writeFactory
+	);
+
+	// Do not continue if there was an issue creating the DirectWrite factory
+	if ( FAILED( writeFactoryResult ) || this->writeFactory == NULL ) {
+		std::cerr << "Failed to create the DirectWrite factory: " << writeFactoryResult << std::endl;
 		ExitProcess( 1 );
 		return;
 	}
@@ -20,11 +34,14 @@ void MyWindow::setupDirect2D() {
 
 }
 
-// Creates the graphics resources (render target, brushes, etc.)
+// Creates the graphics (device-independent) resources (render target, brushes, etc.)
 void MyWindow::createGraphicsResources() {
 
-	// Do not continue if these resources have already been created
-	if ( this->renderTarget != NULL || this->solidBrushOutline != NULL || this->gradientBrushFill != NULL ) return;
+	// Do not continue if any of these resources have already been created
+	if ( this->renderTarget != NULL ||
+		this->solidBrushOutline != NULL ||
+		this->gradientBrushFill != NULL ||
+		this->writeTextFormat != NULL ) return;
 
 	// Get the size of the window client area for drawing on
 	RECT drawingArea;
@@ -55,6 +72,14 @@ void MyWindow::createGraphicsResources() {
 	// Do not continue if there was an issue creating the solid brush
 	if ( FAILED( solidBrushResult ) || this->solidBrushOutline == NULL ) {
 		std::cerr << "Failed to create the Direct2D solid brush: " << solidBrushResult << std::endl;
+		ExitProcess( 1 );
+		return;
+	}
+
+	// Create a solid brush for text
+	HRESULT solidBrushTextResult = this->renderTarget->CreateSolidColorBrush( D2D1::ColorF( D2D1::ColorF::Blue, 1.0f ), &this->solidBrushText );
+	if ( FAILED( solidBrushTextResult ) || this->solidBrushText == NULL ) {
+		std::cerr << "Failed to create the Direct2D solid brush (for text): " << solidBrushTextResult << std::endl;
 		ExitProcess( 1 );
 		return;
 	}
@@ -105,9 +130,34 @@ void MyWindow::createGraphicsResources() {
 		return;
 	}
 
+	// Create DirectWrite text format
+	HRESULT textFormatResult = this->writeFactory->CreateTextFormat(
+		L"Arial", // The name of the font to use
+		NULL, // No collection of fonts
+		DWRITE_FONT_WEIGHT_NORMAL, // Use standard font weight
+		DWRITE_FONT_STYLE_NORMAL, // No additional font styling
+		DWRITE_FONT_STRETCH_NORMAL, // Use standard stretching
+		22.0f, // The font size
+		L"", // The locale
+		&this->writeTextFormat
+	);
+
+	// Do not continue if there was an issue creating the text format
+	if ( FAILED( textFormatResult ) || writeTextFormat == NULL ) {
+		std::cerr << "Failed to create the DirectWrite text format: " << gradientBrushResult << std::endl;
+		ExitProcess( 1 );
+		return;
+	}
+
+	// Center the text horizontally & vertically
+	this->writeTextFormat->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_CENTER );
+	this->writeTextFormat->SetParagraphAlignment( DWRITE_PARAGRAPH_ALIGNMENT_CENTER );
+
 }
 
-// Discards the graphics resources (render target, brushes, etc.)
+// Discards the graphics (device-independent) resources (render target, brushes, etc.)
+// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-6-release-resources
+// https://docs.microsoft.com/en-us/windows/win32/medfound/saferelease
 void MyWindow::releaseGraphicsResources() {
 
 	// Discard the render target
@@ -128,18 +178,36 @@ void MyWindow::releaseGraphicsResources() {
 		this->gradientBrushFill = NULL;
 	}
 
+	// Discard the solid color brush for text
+	if ( this->solidBrushText != NULL ) {
+		this->solidBrushText->Release();
+		this->solidBrushText = NULL;
+	}
+
+	// Discard the text formatter
+	if ( this->writeTextFormat != NULL ) {
+		this->writeTextFormat->Release();
+		this->writeTextFormat = NULL;
+	}
+
 }
 
-// Discards the factory, and graphics resources
+// Discards the factories, and graphics resources
 void MyWindow::releaseDirect2D() {
 
 	// Discard all graphics resources first
 	this->releaseGraphicsResources();
 
-	// Discard the factory
+	// Discard the Direct2D factory
 	if ( this->d2dFactory != NULL ) {
 		this->d2dFactory->Release();
 		this->d2dFactory = NULL;
+	}
+
+	// Discard the DirectWrite factory
+	if ( this->writeFactory != NULL ) {
+		this->writeFactory->Release();
+		this->writeFactory = NULL;
 	}
 
 }
