@@ -133,9 +133,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Direct2D.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Messages.cpp" />
     <ClCompile Include="Source\MyWindow.cpp" />
+    <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MyWindow.h" />

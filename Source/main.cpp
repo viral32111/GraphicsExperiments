@@ -16,8 +16,12 @@ void initializeCommonControls();
 /*
  1st parameter is a handle to the instance of the application/executable when loaded in memory.
  2nd parameter is no longer used, so it is always zero.
- 3rd parameter is the command-line arguments used to launch the executable, as a Unicode string.
+ 3rd parameter is the command-line arguments used to launch the executable, as a Unicode (wide character) string.
  4th parameter is a flag for if the window should be minimized, maximized, or shown normally.
+
+ https://docs.microsoft.com/en-us/windows/win32/learnwin32/winmain--the-application-entry-point
+
+ The _In_ and _In_opt_ are required SAL annotations.
 */
 int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In_ PWSTR commandLineParameters, _In_ int showWindowFlags ) {
 
@@ -33,11 +37,20 @@ int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In
 	// Create an instance of my custom window class using the options above
 	MyWindow myWindow( windowClassName, windowTitle, windowWidth, windowHeight );
 
-	myWindow.setupWindowClass();
-	myWindow.createMainWindow();
+	// Setup & register the window class
+	myWindow.setupWindowClass( applicationHandle );
+
+	// Create & show the top-level window
+	myWindow.createMainWindow( applicationHandle, showWindowFlags );
+
+	// Setup Direct2D resources
 	myWindow.setupDirect2D();
+
+	// Start pulling window messages, this will block until a quit message is received
 	myWindow.pullWindowMessages();
-	myWindow.releaseDirect2DResources();
+
+	// Release all the Direct2D resources
+	myWindow.releaseDirect2D();
 
 	// Finish with a success status code
 	return 0; // This is not used by Windows, but it may be useful for other applications that execute us
