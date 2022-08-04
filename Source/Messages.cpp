@@ -64,44 +64,12 @@ LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode,
 			// Call the handler on the class, with the type, and low-order & high-order words as the new width & height
 			if ( myWindow != NULL ) {
 				myWindow->onWindowResize( windowHandle, ( UINT ) wParam, LOWORD( lParam ), HIWORD( lParam ) );
-
-				// Force a repaint for when the window is shrunk
-				// Might not be needed due to the extended window style classes
-				/*if ( resizeType == SIZE_RESTORED ) {
-					//InvalidateRect( windowHandle, NULL, FALSE );
-					RedrawWindow( windowHandle, NULL, NULL, RDW_INTERNALPAINT );
-				}*/
-
 				return 0; // We processed this
 			}
 
 			break;
 
 		}
-
-		// Cursor needs setting
-		// https://docs.microsoft.com/en-us/windows/win32/menurc/wm-setcursor
-		/*case WM_SETCURSOR: {
-
-			// Print message to debug console
-			OutputDebugStringA( "Cursor needs setting\n" );
-
-			// What the cursor is hitting, see https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-nchittest
-			int hitTest = LOWORD( lParam );
-
-			// What mouse window message triggered this
-			int triggeredBy = HIWORD( lParam );
-
-			// If the cursor is over the client area of the window
-			// https://docs.microsoft.com/en-us/windows/win32/learnwin32/setting-the-cursor-image
-			if ( hitTest == HTCLIENT ) {
-				SetCursor( defaultCursor );
-				return TRUE; // Halt further processing
-			}
-
-			break;
-
-		}*/
 
 		// Window destroyed (called after window closed)
 		// https://docs.microsoft.com/en-gb/windows/win32/winmsg/wm-destroy
@@ -144,6 +112,7 @@ LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode,
 
 }
 
+// Called when the window needs to be painted
 void MyWindow::onWindowPaint( HWND windowHandle ) {
 
 	// Create the Direct2D resources if they have not been created yet
@@ -165,7 +134,7 @@ void MyWindow::onWindowPaint( HWND windowHandle ) {
 	PAINTSTRUCT paintData;
 	if ( BeginPaint( windowHandle, &paintData ) == NULL ) {
 		std::cerr << "Failed to begin painting" << std::endl;
-		DestroyWindow( windowHandle );
+		DestroyWindow( windowHandle ); // Close the window
 		return;
 	}
 
@@ -200,7 +169,13 @@ void MyWindow::onWindowPaint( HWND windowHandle ) {
 
 	// End the drawing code
 	HRESULT drawResult = renderTarget->EndDraw();
-	if ( FAILED( drawResult ) ) {
+
+	// Discard the graphics resources if we need to re-create them (display changed, resolution changed, graphics device disconnected, etc.)
+	if ( drawResult == D2DERR_RECREATE_TARGET ) {
+		this->releaseGraphicsResources();
+
+	// Close the window if any other error occurred
+	} else if ( FAILED( drawResult ) ) {
 		std::cerr << "Failed to end Direct2D drawing: " << drawResult << std::endl;
 		DestroyWindow( windowHandle );
 		// No return because we still want to end the painting code

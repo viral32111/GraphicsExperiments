@@ -9,7 +9,6 @@
 
 // Direct2D
 #include <d2d1.h>
-#include <d2d1helper.h>
 
 // Custom class to encapsulate everything
 class MyWindow {

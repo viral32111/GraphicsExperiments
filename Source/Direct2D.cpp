@@ -1,6 +1,7 @@
 // My custom window class
 #include "MyWindow.h"
 
+// Creates the factory for creating other resources
 void MyWindow::setupDirect2D() {
 
 	// Create a factory, which is used to create Direct2D resources, there should only be one for the lifetime of the application
@@ -14,10 +15,12 @@ void MyWindow::setupDirect2D() {
 		return;
 	}
 
+	// Create the graphics resources so they are ready for the first paint call
 	this->createGraphicsResources();
 
 }
 
+// Creates the graphics resources (render target, brushes, etc.)
 void MyWindow::createGraphicsResources() {
 
 	// Do not continue if these resources have already been created
@@ -104,18 +107,22 @@ void MyWindow::createGraphicsResources() {
 
 }
 
+// Discards the graphics resources (render target, brushes, etc.)
 void MyWindow::releaseGraphicsResources() {
 
+	// Discard the render target
 	if ( this->renderTarget != NULL ) {
 		this->renderTarget->Release();
 		this->renderTarget = NULL;
 	}
 
+	// Discard the solid color brush
 	if ( this->solidBrushOutline != NULL ) {
 		this->solidBrushOutline->Release();
 		this->solidBrushOutline = NULL;
 	}
 
+	// Discard the linear gradient brush
 	if ( this->gradientBrushFill != NULL ) {
 		this->gradientBrushFill->Release();
 		this->gradientBrushFill = NULL;
@@ -123,10 +130,13 @@ void MyWindow::releaseGraphicsResources() {
 
 }
 
+// Discards the factory, and graphics resources
 void MyWindow::releaseDirect2D() {
 
+	// Discard all graphics resources first
 	this->releaseGraphicsResources();
 
+	// Discard the factory
 	if ( this->d2dFactory != NULL ) {
 		this->d2dFactory->Release();
 		this->d2dFactory = NULL;

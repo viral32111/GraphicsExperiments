@@ -43,13 +43,13 @@ int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In
 	// Create & show the top-level window
 	myWindow.createMainWindow( applicationHandle, showWindowFlags );
 
-	// Setup Direct2D resources
+	// Setup the Direct2D resources
 	myWindow.setupDirect2D();
 
 	// Start pulling window messages, this will block until a quit message is received
 	myWindow.pullWindowMessages();
 
-	// Release all the Direct2D resources
+	// Release all the Direct2D resources (this should have already been done, but do it again just in case)
 	myWindow.releaseDirect2D();
 
 	// Finish with a success status code
