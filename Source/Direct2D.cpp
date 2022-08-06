@@ -1,16 +1,19 @@
 // My custom window class
 #include "MyWindow.h"
 
+// Console functions
+#include "Console.h"
+
 // Creates the factories for creating other resources
 void MyWindow::setupDirect2D() {
 
 	// Create a Direct2D factory, which is used to create resources, there should only be one for the lifetime of the application
 	// https://docs.microsoft.com/en-us/windows/win32/direct2d/getting-started-with-direct2d#step-2-create-an-id2d1factory
-	HRESULT factoryResult = D2D1CreateFactory( D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->d2dFactory );
+	HRESULT d2dFactoryResult = D2D1CreateFactory( D2D1_FACTORY_TYPE_SINGLE_THREADED, &this->d2dFactory );
 
 	// Do not continue if there was an issue creating the Direct2D factory
-	if ( FAILED( factoryResult ) || this->d2dFactory == NULL ) {
-		std::cerr << "Failed to create the Direct2D factory: " << factoryResult << std::endl;
+	if ( FAILED( d2dFactoryResult ) || this->d2dFactory == NULL ) {
+		consoleError( "Failed to create the Direct2D factory! (%l)", d2dFactoryResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -24,10 +27,13 @@ void MyWindow::setupDirect2D() {
 
 	// Do not continue if there was an issue creating the DirectWrite factory
 	if ( FAILED( writeFactoryResult ) || this->writeFactory == NULL ) {
-		std::cerr << "Failed to create the DirectWrite factory: " << writeFactoryResult << std::endl;
+		consoleError( "Failed to create the DirectWrite factory! (%l)", writeFactoryResult );
 		ExitProcess( 1 );
 		return;
 	}
+
+	// Display a message to the console
+	consoleOutput( "Created Direct2D & DirectWrite factories." );
 
 	// Create the graphics resources so they are ready for the first paint call
 	this->createGraphicsResources();
@@ -60,7 +66,7 @@ void MyWindow::createGraphicsResources() {
 
 	// Do not continue if there was an issue creating the render target
 	if ( FAILED( renderTargetResult ) || this->renderTarget == NULL ) {
-		std::cerr << "Failed to create the Direct2D render target: " << renderTargetResult << std::endl;
+		consoleError( "Failed to create the Direct2D render target! (%l)", renderTargetResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -71,7 +77,7 @@ void MyWindow::createGraphicsResources() {
 
 	// Do not continue if there was an issue creating the solid brush
 	if ( FAILED( solidBrushResult ) || this->solidBrushOutline == NULL ) {
-		std::cerr << "Failed to create the Direct2D solid brush: " << solidBrushResult << std::endl;
+		consoleError( "Failed to create the Direct2D solid brush! (%l)", solidBrushResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -79,7 +85,7 @@ void MyWindow::createGraphicsResources() {
 	// Create a solid brush for text
 	HRESULT solidBrushTextResult = this->renderTarget->CreateSolidColorBrush( D2D1::ColorF( D2D1::ColorF::Blue, 1.0f ), &this->solidBrushText );
 	if ( FAILED( solidBrushTextResult ) || this->solidBrushText == NULL ) {
-		std::cerr << "Failed to create the Direct2D solid brush (for text): " << solidBrushTextResult << std::endl;
+		consoleError( "Failed to create the Direct2D solid brush for text! (%l)", solidBrushTextResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -107,7 +113,7 @@ void MyWindow::createGraphicsResources() {
 
 	// Do not continue if there was an issue creating the gradient stop collection
 	if ( FAILED( gradientCollectionResult ) || gradientStopCollection == NULL ) {
-		std::cerr << "Failed to create the Direct2D gradient stop collection: " << gradientCollectionResult << std::endl;
+		consoleError( "Failed to create the Direct2D gradient stop collection! (%l)", gradientCollectionResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -125,7 +131,7 @@ void MyWindow::createGraphicsResources() {
 
 	// Do not continue if there was an issue creating the linear gradient brush
 	if ( FAILED( gradientBrushResult ) || gradientBrushFill == NULL ) {
-		std::cerr << "Failed to create the Direct2D linear gradient brush: " << gradientBrushResult << std::endl;
+		consoleError( "Failed to create the Direct2D linear gradient brush! (%l)", gradientBrushResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -144,7 +150,7 @@ void MyWindow::createGraphicsResources() {
 
 	// Do not continue if there was an issue creating the text format
 	if ( FAILED( textFormatResult ) || writeTextFormat == NULL ) {
-		std::cerr << "Failed to create the DirectWrite text format: " << gradientBrushResult << std::endl;
+		consoleError( "Failed to create the DirectWrite text format! (%l)", textFormatResult );
 		ExitProcess( 1 );
 		return;
 	}
@@ -152,6 +158,9 @@ void MyWindow::createGraphicsResources() {
 	// Center the text horizontally & vertically
 	this->writeTextFormat->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_CENTER );
 	this->writeTextFormat->SetParagraphAlignment( DWRITE_PARAGRAPH_ALIGNMENT_CENTER );
+
+	// Display a message to the console
+	consoleOutput( "Created Direct2D & DirectWrite graphics resources." );
 
 }
 
@@ -190,6 +199,9 @@ void MyWindow::releaseGraphicsResources() {
 		this->writeTextFormat = NULL;
 	}
 
+	// Display a message to the console
+	consoleOutput( "Released Direct2D & DirectWrite graphics resources." );
+
 }
 
 // Discards the factories, and graphics resources
@@ -209,5 +221,8 @@ void MyWindow::releaseDirect2D() {
 		this->writeFactory->Release();
 		this->writeFactory = NULL;
 	}
+
+	// Display a message to the console
+	consoleOutput( "Released Direct2D & DirectWrite factories." );
 
 }

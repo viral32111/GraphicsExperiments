@@ -1,6 +1,9 @@
 // My custom window class
 #include "MyWindow.h"
 
+// Console functions
+#include "Console.h"
+
 // Creates and registers the window class
 void MyWindow::setupWindowClass( HINSTANCE applicationInstance ) {
 
@@ -19,9 +22,9 @@ void MyWindow::setupWindowClass( HINSTANCE applicationInstance ) {
 
 	// Register the extended window class using that structure
 	if ( RegisterClassExW( &windowClass ) == NULL ) {
-		DWORD latestErrorCode = GetLastError();
-		std::cerr << "Failed to register the window class: " << latestErrorCode << std::endl;
+		consoleError( "Failed to register the window class! (%lu)", GetLastError() );
 		ExitProcess( 1 );
+		return;
 	}
 
 }
@@ -35,7 +38,7 @@ void MyWindow::createMainWindow( HINSTANCE applicationInstance, int showWindowFl
 		WS_EX_DLGMODALFRAME, // Hide the icon, see https://docs.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles
 		this->WINDOW_CLASS_NAME, // The name of the window class
 		this->WINDOW_TITLE, // The text displayed as the window title
-		WS_OVERLAPPEDWINDOW, // Use the default flags for a window (title bar, border, minimize & maximize buttons, etc.)
+		WS_OVERLAPPEDWINDOW, // Use the default flags for a window (title bar, border, minimize & maximize buttons, etc.), see https://docs.microsoft.com/en-us/windows/win32/winmsg/window-styles
 		CW_USEDEFAULT, CW_USEDEFAULT, // Position the window wherever the system wants it
 		this->WINDOW_WIDTH, this->WINDOW_HEIGHT, // The size of the window, could be CW_USEDEFAULT to use default values
 		NULL, // No parent window as this is the top-level window
@@ -46,9 +49,9 @@ void MyWindow::createMainWindow( HINSTANCE applicationInstance, int showWindowFl
 
 	// Do not continue if there was an issue creating the window
 	if ( windowHandle == NULL ) {
-		DWORD latestErrorCode = GetLastError();
-		std::cerr << "Failed to create the window: " << latestErrorCode << std::endl;
+		consoleError( "Failed to create the window! (%lu)", GetLastError() );
 		ExitProcess( 1 );
+		return;
 	}
 
 	// Show the newly created window using the system's window show flag from the main entry-point

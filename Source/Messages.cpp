@@ -1,6 +1,9 @@
 // My custom window class
 #include "MyWindow.h"
 
+// Console functions
+#include "Console.h"
+
 // Receives and handles messages dispatched to our window, ideally should be done on another thread as another message cannot be received until this finishes processing the current one
 // https://docs.microsoft.com/en-us/windows/win32/learnwin32/writing-the-window-procedure
 LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode, WPARAM wParam, LPARAM lParam ) {
@@ -20,17 +23,20 @@ LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode,
 
 			// Do not continue if the class reference is invalid
 			if ( myWindow == NULL ) {
-				std::cerr << "Extra data custom class reference is invalid" << std::endl;
+				consoleError( "Extra window data as class reference is invalid!" );
 				return 1; // Abort the creation of the window
 			}
 
+			// Clear the latest error
+			SetLastError( 0 );
+
 			// Store the class reference in the user-data of the window, so it can be retrieved within the handlers
 			// https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setwindowlongptrw
-			if ( SetWindowLongPtrW( windowHandle, GWLP_USERDATA, ( LONG_PTR ) myWindow ) == NULL ) {
-				DWORD latestErrorCode = GetLastError();
-				std::cerr << "Failed to store in user-data: " << latestErrorCode << std::endl;
+			if ( SetWindowLongPtrW( windowHandle, GWLP_USERDATA, ( LONG_PTR ) myWindow ) == NULL && GetLastError() != 0 ) {
+				consoleError( "Failed to store class reference in window userdata! (%lu)", GetLastError() );
 				return 1; // Abort the creation of the window
 			} else {
+				consoleOutput( "Class reference stored in window userdata." );
 				return 0; // We processed this
 			}
 
@@ -45,9 +51,11 @@ LRESULT CALLBACK MyWindow::windowProcedure( HWND windowHandle, UINT messageCode,
 			// Show a prompt requesting that the user confirm this action, if they confirm then destroy the window
 			// https://docs.microsoft.com/en-us/windows/win32/dlgbox/using-dialog-boxes
 			if ( MessageBox( windowHandle, L"Are you sure you want to exit the application?", L"Confirm", MB_YESNO | MB_ICONQUESTION ) == IDYES ) {
+				consoleOutput( "User confirmed closure of window." );
 				DestroyWindow( windowHandle );
 			}
 
+			consoleOutput( "User denied closure of window." );
 			return 0; // We always process this, even if the user denies the prompt so that the window does not close due to the default handler
 
 			break;
@@ -150,7 +158,7 @@ void MyWindow::onWindowPaint( HWND windowHandle ) {
 	// https://docs.microsoft.com/en-us/windows/win32/learnwin32/painting-the-window
 	PAINTSTRUCT paintData;
 	if ( BeginPaint( windowHandle, &paintData ) == NULL ) {
-		std::cerr << "Failed to begin painting" << std::endl;
+		consoleError( "Failed to begin painting!" );
 		DestroyWindow( windowHandle ); // Close the window
 		return;
 	}
@@ -203,7 +211,7 @@ void MyWindow::onWindowPaint( HWND windowHandle ) {
 
 	// Close the window if any other error occurred
 	} else if ( FAILED( drawResult ) ) {
-		std::cerr << "Failed to end Direct2D drawing: " << drawResult << std::endl;
+		consoleError( "Failed to end Direct2D drawing! (%l)", drawResult );
 		DestroyWindow( windowHandle );
 		// No return because we still want to end the painting code
 	}
@@ -221,6 +229,9 @@ void MyWindow::onWindowResize( HWND windowHandle, UINT type, UINT width, UINT he
 		this->renderTarget->Resize( D2D1::SizeU( width, height ) );
 	}
 
+	// Display a message to the console
+	consoleOutput( "Window resized to %i by %i.", width, height );
+
 }
 
 // Called when the window is destroyed
@@ -231,5 +242,8 @@ void MyWindow::onWindowDestroy( HWND windowHandle ) {
 
 	// Exit the message loop by pushing a quit message onto the message queue, which causes GetMessage() to return 0 and thus the loop ends
 	PostQuitMessage( 0 );
+
+	// Display a message to the console
+	consoleOutput( "Window destroyed." );
 
 }

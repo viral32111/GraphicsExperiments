@@ -1,6 +1,3 @@
-// Standard I/O
-#include <iostream>
-
 // Windows API
 #include <Windows.h>
 
@@ -9,6 +6,9 @@
 
 // My custom window class
 #include "MyWindow.h"
+
+// Console functions
+#include "Console.h"
 
 // Prototypes for functions later on in this file
 void initializeCommonControls();
@@ -24,6 +24,9 @@ void initializeCommonControls();
  The _In_ and _In_opt_ are required SAL annotations.
 */
 int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In_ PWSTR commandLineParameters, _In_ int showWindowFlags ) {
+
+	// Create a console window
+	consoleCreate( "Created console window." );
 
 	// Initialize the common control classes before creating UI
 	initializeCommonControls();
@@ -52,6 +55,9 @@ int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In
 	// Release all the Direct2D resources (this should have already been done, but do it again just in case)
 	myWindow.releaseDirect2D();
 
+	// Close the console window
+	consoleClose( "Closing console window..." );
+
 	// Finish with a success status code
 	return 0; // This is not used by Windows, but it may be useful for other applications that execute us
 
@@ -69,8 +75,12 @@ void initializeCommonControls() {
 
 	// Load those common controls
 	if ( InitCommonControlsEx( &commonControls ) == FALSE ) {
-		std::cerr << "Failed to initialize the common controls library" << std::endl;
+		consoleError( "Failed to initialize the common controls library!" );
 		ExitProcess( 1 );
+		return;
 	}
+
+	// Display message to console
+	consoleOutput( "Initialized the common control classes." );
 
 }
