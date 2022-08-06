@@ -33,12 +33,18 @@
     <ClCompile Include="Source\Console.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\MyWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Console.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -138,11 +138,13 @@
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Messages.cpp" />
     <ClCompile Include="Source\MyWindow.cpp" />
+    <ClCompile Include="Source\Thread.cpp" />
     <ClCompile Include="Source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Console.h" />
     <ClInclude Include="Source\MyWindow.h" />
+    <ClInclude Include="Source\Thread.h" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="GraphicsExperiments.exe.manifest" />

@@ -230,7 +230,7 @@ void MyWindow::onWindowResize( HWND windowHandle, UINT type, UINT width, UINT he
 	}
 
 	// Display a message to the console
-	consoleOutput( "Window resized to %i by %i.", width, height );
+	consoleOutput( "Window resized to %d by %d.", width, height );
 
 }
 

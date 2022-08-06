@@ -10,6 +10,9 @@
 // Console functions
 #include "Console.h"
 
+// Thread experiments
+#include "Thread.h"
+
 // Prototypes for functions later on in this file
 void initializeCommonControls();
 
@@ -49,11 +52,17 @@ int WINAPI wWinMain( _In_ HINSTANCE applicationHandle, _In_opt_ HINSTANCE _, _In
 	// Setup the Direct2D resources
 	myWindow.setupDirect2D();
 
+	// Create thread
+	threadCreate();
+
 	// Start pulling window messages, this will block until a quit message is received
 	myWindow.pullWindowMessages();
 
 	// Release all the Direct2D resources (this should have already been done, but do it again just in case)
 	myWindow.releaseDirect2D();
+
+	// Stop thread
+	//threadStop();
 
 	// Close the console window
 	consoleClose( "Closing console window..." );
